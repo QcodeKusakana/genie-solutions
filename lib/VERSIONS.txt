@@ -1,0 +1,8 @@
+Bibliothèques locales (versions épinglées) :
+bootstrap 5.3.3, bootstrap-icons 1.11.3
+(commentaires source map retirés ; empreintes = fichiers livrés)
+c938e1227260834371896291dd5d28e98b5743ec952b721bdf791744ab06810d  bootstrap/bootstrap.bundle.min.js
+38ebdfa27b71528b64c4933fbb4403bfbccd4dd8434bb8f674ddf0e6fa161fec  bootstrap/bootstrap.min.css
+f643d6fe7e679f9de3e16311600c5ef5cd6b098f7a3a8828fcc29255d2b33e62  bootstrap-icons/bootstrap-icons.min.css
+bb1de989b83970f6f4e54de1cd974c5cba55b73582da5e1b225a6d0edf029483  bootstrap-icons/fonts/bootstrap-icons.woff
+476adf42b40325098fcfa8b36ab3e769186bb4f6ce6a249753e2e1a9c22bf99e  bootstrap-icons/fonts/bootstrap-icons.woff2

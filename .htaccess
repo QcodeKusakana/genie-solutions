@@ -1,0 +1,46 @@
+# =============================================================================
+# Génie Solutions — .htaccess racine (Apache 2.4, mod_rewrite requis)
+#
+# La RACINE DU PROJET est la racine web (organisation « à plat », comme la base du
+# projet et le site BIS). Toute la sécurité repose donc sur ce fichier ET sur les
+# gardes d'accès direct des fichiers PHP : voir la checklist de mise en production.
+# Nginx / IIS n'interprètent pas ce fichier : voir README (équivalents à reproduire).
+# =============================================================================
+Options -Indexes -MultiViews
+DirectoryIndex index.php
+ServerSignature Off
+
+# Fichiers cachés (.env, .git, .htaccess…) et extensions sensibles : jamais servis
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+<FilesMatch "\.(sql|log|md|bak|old|orig|ini|dist|example|sh|lock|json|yml|yaml|env|tpl|inc)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # 1. Dossiers privés (code, logique, vues, base, journaux, outils) : interdits en HTTP
+    RewriteRule ^(includes|php|pages|menu|storage|database|bin|tests)(/|$) - [F,L]
+    RewriteRule ^admin/(includes|php|pages|menu)(/|$) - [F,L]
+
+    # 2. Les seuls PHP exécutables directement : index.php (public) et admin/index.php
+    RewriteRule ^(?!index\.php$|admin/index\.php$)(.+\.(php[0-9s]?|phtml|phar))$ - [F,L,NC]
+
+    # 3. Contrôleur frontal : tout ce qui n'est ni fichier ni dossier réel passe par index.php
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^ index.php [L]
+</IfModule>
+
+# Cache long pour les ressources statiques versionnées (?v=…)
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 year"
+    ExpiresByType application/javascript "access plus 1 year"
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+</IfModule>
