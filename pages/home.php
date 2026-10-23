@@ -1,26 +1,91 @@
 <?php defined('GS_ROOT') || exit; ?>
 <?php /** @var ?array $hero @var ?array $intro @var ?array $gallery @var ?array $cta @var list<array> $services @var list<array> $why
-        * @var list<array> $steps @var list<array> $projects @var list<array> $testimonials */ ?>
+        * @var list<array> $steps @var list<array> $projects @var list<array> $testimonials @var list<array> $partners */ ?>
+<?php
+$heroPhoto = null;
+if (!empty($hero['stored_name'])) {
+    $heroPhoto = [
+        'stored_name' => $hero['stored_name'],
+        'alt_text' => trim((string) ($hero['alt_text'] ?? '')) === '' || $hero['alt_text'] === 'Impression'
+            ? 'Présentation d’uniformes brodés dans l’atelier Génie Solutions'
+            : $hero['alt_text'],
+        'width' => $hero['media_width'] ?? null,
+        'height' => $hero['media_height'] ?? null,
+    ];
+} else {
+    foreach ($projects as $candidate) {
+        if (str_contains((string) ($candidate['slug'] ?? ''), 'demo-broderie-polos')) {
+            $heroPhoto = $candidate;
+            $heroPhoto['alt_text'] = 'Broderie textile réalisée dans l’atelier Génie Solutions';
+            break;
+        }
+    }
+}
+$heroSlides = [];
+if ($heroPhoto && !empty($heroPhoto['stored_name'])) {
+    $heroSlides[] = $heroPhoto;
+}
+foreach ($projects as $candidate) {
+    if (empty($candidate['stored_name'])) {
+        continue;
+    }
+    $alreadyAdded = false;
+    foreach ($heroSlides as $slide) {
+        if ((string) $slide['stored_name'] === (string) $candidate['stored_name']) {
+            $alreadyAdded = true;
+            break;
+        }
+    }
+    if (!$alreadyAdded) {
+        $heroSlides[] = $candidate;
+    }
+    if (count($heroSlides) >= 4) {
+        break;
+    }
+}
+?>
+<?php $homeHeadline = (string) ($hero['title'] ?? ''); if (trim($homeHeadline) === 'Des solutions professionnelles pour donner vie à vos idées.') { $homeHeadline = 'De l’idée au textile, de l’encre au grand format.'; } ?>
 <?php if ($hero): ?>
 <section class="hero" aria-labelledby="hero-title">
     <div class="container hero-inner">
-        <span class="hero-kicker">Imprimerie · Couture · Broderie</span>
-        <h1 id="hero-title"><?= e($hero['title']) ?></h1>
+        <div class="hero-copy">
+            <span class="hero-kicker">Imprimerie · Couture · Broderie</span>
+            <h1 id="hero-title"><?= e($homeHeadline) ?></h1>
 <?php if (!empty($hero['subtitle'])): ?>
-        <p class="lead mt-3"><?= e($hero['subtitle']) ?></p>
+            <p class="lead mt-3"><?= e($hero['subtitle']) ?></p>
 <?php endif; ?>
-        <div class="d-flex flex-wrap gap-3 mt-4">
+            <div class="d-flex flex-wrap gap-3 mt-4">
 <?php if (!empty($hero['cta_label'])): ?>
-            <a class="btn btn-accent btn-lg" href="<?= e($hero['cta_url']) ?>"><?= e($hero['cta_label']) ?></a>
+                <a class="btn btn-accent btn-lg" href="<?= e($hero['cta_url']) ?>"><?= e($hero['cta_label']) ?></a>
 <?php endif; ?>
 <?php if (!empty($hero['cta2_label'])): ?>
-            <a class="btn btn-light-outline btn-lg" href="<?= e($hero['cta2_url']) ?>"><?= e($hero['cta2_label']) ?></a>
+                <a class="btn btn-light-outline btn-lg" href="<?= e($hero['cta2_url']) ?>"><?= e($hero['cta2_label']) ?></a>
+<?php endif; ?>
+            </div>
+        </div>
+<?php if ($heroSlides !== []): ?>
+        <div class="hero-photo hero-carousel reveal" data-hero-carousel data-interval="5500" role="region" aria-roledescription="carrousel" aria-label="Quelques réalisations de Génie Solutions">
+            <div class="hero-carousel-slides">
+<?php foreach ($heroSlides as $i => $slide): $slideAlt = trim((string) ($slide['alt_text'] ?? '')); if ($slideAlt === '' || $slideAlt === 'Impression') { $slideAlt = 'Photographie d’une réalisation de Génie Solutions'; } ?>
+                <figure class="hero-slide<?= $i === 0 ? ' is-active' : '' ?>" data-hero-slide aria-roledescription="diapositive" aria-label="<?= (int) $i + 1 ?> sur <?= count($heroSlides) ?>"<?= $i === 0 ? '' : ' aria-hidden="true"' ?>>
+                    <?= media_img($slide, $slideAlt, '', $i !== 0) ?>
+                    <figcaption><span>Nos réalisations</span><span>Un aperçu de notre savoir-faire</span></figcaption>
+                </figure>
+<?php endforeach; ?>
+            </div>
+<?php if (count($heroSlides) > 1): ?>
+            <div class="hero-carousel-controls" aria-label="Commandes du carrousel">
+                <button type="button" class="hero-carousel-arrow" data-hero-prev aria-label="Image précédente"><i class="bi bi-arrow-left" aria-hidden="true"></i></button>
+                <div class="hero-carousel-dots" role="group" aria-label="Choisir une image">
+<?php foreach ($heroSlides as $i => $_slide): ?>
+                    <button type="button" class="hero-carousel-dot<?= $i === 0 ? ' is-active' : '' ?>" data-hero-dot="<?= (int) $i ?>" aria-label="Afficher l’image <?= (int) $i + 1 ?>"<?= $i === 0 ? ' aria-current="true"' : '' ?>></button>
+<?php endforeach; ?>
+                </div>
+                <button type="button" class="hero-carousel-arrow" data-hero-next aria-label="Image suivante"><i class="bi bi-arrow-right" aria-hidden="true"></i></button>
+            </div>
 <?php endif; ?>
         </div>
-        <div class="hero-pattern" aria-hidden="true">
-            <span class="crop tl"></span><span class="crop tr"></span><span class="crop bl"></span><span class="crop br"></span>
-            <span class="frame"></span><span class="dots"></span>
-        </div>
+<?php endif; ?>
     </div>
 </section>
 <?php endif; ?>
@@ -28,17 +93,17 @@
 <?php if ($intro): ?>
 <section class="section" aria-labelledby="intro-title">
     <div class="container">
-        <div class="home-intro-card reveal">
-            <p class="section-kicker">Génie Solutions</p>
+        <div class="home-intro-layout reveal">
+            <p class="section-kicker">La maison</p>
             <h2 id="intro-title" class="section-title"><?= e($intro['title']) ?></h2>
-            <p class="mt-3 mb-0"><?= e($intro['body']) ?></p>
+            <p class="home-intro-copy mb-0"><?= e($intro['body']) ?></p>
         </div>
     </div>
 </section>
 <?php endif; ?>
 
 <?php if ($services !== []): ?>
-<section class="section section-alt" aria-labelledby="services-title">
+<section class="section section-alt section-services" aria-labelledby="services-title">
     <div class="container">
         <p class="section-kicker">Nos services</p>
         <h2 class="section-title mb-4" id="services-title">Trois savoir-faire, un même niveau d’exigence</h2>
@@ -79,14 +144,44 @@
 <?php if (!empty($gallery['subtitle'])): ?>
         <p class="text-muted prose"><?= e($gallery['subtitle']) ?></p>
 <?php endif; ?>
-        <div class="row g-4 mt-1">
+        <div class="home-project-grid mt-4">
 <?php foreach ($projects as $p): ?>
-            <div class="col-md-6 col-lg-4"><?php partial('project_card', ['p' => $p]); ?></div>
+            <?php partial('project_card', ['p' => $p]); ?>
 <?php endforeach; ?>
         </div>
 <?php if (!empty($gallery['cta_label'])): ?>
         <p class="mt-4 mb-0"><a class="btn btn-outline-navy" href="<?= e($gallery['cta_url']) ?>"><?= e($gallery['cta_label']) ?></a></p>
 <?php endif; ?>
+    </div>
+</section>
+<?php endif; ?>
+
+<?php if ($partners !== []): ?>
+<section class="section section-partners" aria-labelledby="partners-title">
+    <div class="container">
+        <div class="partner-heading">
+            <p class="section-kicker">Ils nous font confiance</p>
+            <h2 class="section-title" id="partners-title">Nos partenaires</h2>
+            <p class="text-muted">Des collaborations qui nous permettent de concrétiser vos projets.</p>
+        </div>
+        <div class="partner-marquee" aria-label="Logos de nos partenaires">
+            <div class="partner-track">
+<?php foreach ($partners as $partner): $logo = '/uploads/' . rawurlencode((string) $partner['stored_name']); ?>
+                <?php if (!empty($partner['website_url'])): ?>
+                <a class="partner-logo" href="<?= e($partner['website_url']) ?>" target="_blank" rel="noopener noreferrer" aria-label="Visiter le site de <?= e($partner['name']) ?> (nouvel onglet)">
+                    <img src="<?= e($logo) ?>" alt="<?= e($partner['name']) ?>" loading="lazy" width="180" height="90">
+                </a>
+                <?php else: ?>
+                <span class="partner-logo"><img src="<?= e($logo) ?>" alt="<?= e($partner['name']) ?>" loading="lazy" width="180" height="90"></span>
+                <?php endif; ?>
+<?php endforeach; ?>
+            </div>
+            <div class="partner-track partner-track-copy" aria-hidden="true" inert>
+<?php foreach ($partners as $partner): ?>
+                <span class="partner-logo"><img src="/uploads/<?= e(rawurlencode((string) $partner['stored_name'])) ?>" alt="" loading="lazy" width="180" height="90"></span>
+<?php endforeach; ?>
+            </div>
+        </div>
     </div>
 </section>
 <?php endif; ?>

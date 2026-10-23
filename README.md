@@ -14,14 +14,14 @@ La **racine du projet est la racine web** (organisation « à plat », comme la 
 | `menu/` | `head.php` (`<head>`), `menu.php` (annonce + navigation), `footer.php` | `menu/menu.php`, `footer.php` |
 | `css/` `js/` `img/` `lib/` | Ressources publiques (`lib/` : Bootstrap et icônes en local) | idem |
 | `uploads/` | Médias téléversés (aucune exécution de script) | `admin/uploads/` |
-| `admin/` | Administration (`pages/`, `php/`, `menu/`, `assets/`) — **étape 4** | `admin/` (`?pages=`) |
+| `admin/` | Administration (`index.php`, `assets/`) | `admin/` (`?pages=`) |
 | `includes/` | Code partagé privé : config, PDO, helpers, requêtes SQL, rendu | *(nouveau)* remplace `php/main_functions.php` |
 | `storage/` `database/` `bin/` `tests/` | Journaux/fichiers privés, SQL, scripts CLI, tests | *(nouveau)* |
 
 Principe : `php/<page>.php` prépare les données → `pages/<page>.php` les affiche, entouré de `menu/`.
 
 
-## Administration (première version)
+## Administration
 
 L’interface est accessible sur /admin/index.php. La connexion vérifie le compte actif, applique les permissions définies par rôle, enregistre les tentatives et renouvelle l’identifiant de session. Un compte administrateur n’est volontairement pas inclus ; après l’installation, créez le premier compte avec php bin/create-admin.php et choisissez vous-même un mot de passe fort.
 
@@ -29,7 +29,7 @@ Selon les permissions du compte, le panneau permet de consulter les indicateurs,
 
 Les images extraites des PDF sont conservées dans storage/private/media-imports/. Les aperçus sont servis par l’interface après contrôle de la permission media.manage. Elles ne sont pas ajoutées au site public ni aux réalisations tant que les légendes, textes alternatifs et autorisations de publication n’ont pas été validés. Voir docs/sources-pdf.md.
 
-Le module « Pages du site » permet de modifier À propos, la politique de confidentialité et les mentions légales. Les URL restent fixes et le HTML est assaini. Les FAQ peuvent être modifiées et masquées. Les services gèrent leur résumé, description, prestations, profil de devis, SEO et statut. Le catalogue accepte des prix facultatifs; aucune devise ni aucun montant n’est supposé. Les réalisations lient un service, une catégorie et une image de la médiathèque. La page Paramètres regroupe l’identité, les coordonnées, les réseaux sociaux, la devise et le SEO; les secrets restent dans l’environnement. Les textes juridiques restent à fournir et à valider. Restent à réaliser : gestion des utilisateurs/rôles, téléversement et approbation des médias, liaison des photos importées aux réalisations et gestion des sections de la page d’accueil.
+Le module « Pages du site » permet de modifier À propos, la politique de confidentialité et les mentions légales. Les URL restent fixes et le HTML est assaini. Les FAQ, services, catalogue, réalisations, partenaires, témoignages et contenus de l’accueil se gèrent dans l’administration. La médiathèque accepte les images téléversées depuis l’ordinateur et permet leur réutilisation sur les réalisations. La page Paramètres regroupe l’identité, les coordonnées, les réseaux sociaux, la devise et le SEO; les secrets restent dans l’environnement. Les textes juridiques et les contenus de démonstration doivent être remplacés/validés par l’entreprise avant publication.
 
 ## Ce qui a été corrigé par rapport à la base `atcm`
 
@@ -48,7 +48,7 @@ Le module « Pages du site » permet de modifier À propos, la politique de conf
 4. Passer `.env` sur le compte applicatif, puis `php bin/create-admin.php` (mot de passe saisi à l'invite).
 5. Lancer : `php -S 127.0.0.1:8000 index.php` — ou virtual host Laragon sur la racine du projet.
 
-Base déjà installée avant : exécuter `database/migrations/002_services_icon.sql` puis `003_services_quote_profile.sql`.
+Base déjà installée avant : vérifier les migrations `002_services_icon.sql`, `003_services_quote_profile.sql` et `004_partners.sql` dans `database/migrations/` avant de mettre à jour le site.
 
 ## Dépannage : « 503 – Service momentanément indisponible »
 
@@ -125,10 +125,12 @@ location / { try_files $uri $uri/ /index.php?$query_string; }
 # PHP-FPM : n'exécuter que /index.php et /admin/index.php
 ```
 
-## Risques résiduels connus
+## Vérifications restantes avant la mise en ligne
 
-- Rendu visuel et CSP non vérifiés dans un navigateur réel (HTML et en-têtes testés uniquement).
-- Les demandes de devis et messages ne sont consultables qu'en base tant que l'administration n'est pas livrée.
-- Pages légales : aucun texte juridique n'est fourni ; elles restent en brouillon (404, lien masqué) jusqu'à rédaction par l'entreprise.
-- Aucune photo réelle : les cartes affichent un repère visuel tant qu'aucune image n'est téléversée (administration, étape 5).
-- Aucune coordonnée, aucun prix : à saisir dans l'administration (étape 5).
+- Remplacer les coordonnées de démonstration et vérifier les coordonnées réelles dans Paramètres.
+- Retirer les réalisations marquées « démonstration » et publier uniquement des projets autorisés par l'entreprise.
+- Remplacer les médias de démonstration par les photos approuvées et vérifier leurs textes alternatifs.
+- Finaliser et faire valider les mentions légales et la politique de confidentialité.
+- Configurer SMTP si l'entreprise veut recevoir les notifications par e-mail.
+- Vérifier les parcours sur le domaine HTTPS définitif et refaire `php bin/check.php --url=https://votre-domaine` après déploiement.
+- La purge automatique des demandes selon `quote_retention_months` n'est pas encore implémentée.

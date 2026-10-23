@@ -50,7 +50,7 @@ foreach (['html', 'settings', 'session', 'csrf', 'security', 'html_sanitizer', '
     require_once GS_ROOT . '/includes/helpers/' . $helper . '.php';
 }
 require_once GS_ROOT . '/includes/services/site_repository.php';
-foreach (['mail_service', 'form_service', 'quote_service', 'contact_service'] as $svc) {
+foreach (['mail_service', 'form_service', 'quote_service', 'quote_pdf', 'contact_service'] as $svc) {
     require_once GS_ROOT . '/includes/services/' . $svc . '.php';
 }
 require_once GS_ROOT . '/includes/navigation.php';

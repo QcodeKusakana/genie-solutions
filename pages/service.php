@@ -10,7 +10,7 @@
             <div class="col-lg-7">
                 <p class="section-kicker">Notre savoir-faire</p>
 <?php if (!empty($service['media'])): ?>
-                <img class="img-fluid rounded-3 mb-4" src="<?= e($service['media']['url']) ?>" alt="<?= e($service['media']['alt'] ?: $service['name']) ?>"<?= $service['media']['width'] ? ' width="' . (int) $service['media']['width'] . '" height="' . (int) $service['media']['height'] . '"' : '' ?>>
+                <img class="service-feature-image mb-4" src="<?= e($service['media']['url']) ?>" alt="<?= e($service['media']['alt'] ?: $service['name']) ?>"<?= $service['media']['width'] ? ' width="' . (int) $service['media']['width'] . '" height="' . (int) $service['media']['height'] . '"' : '' ?>>
 <?php endif; ?>
                 <div class="rich-text"><?= sanitize_html($service['description']) ?></div>
 <?php if (!empty($service['approach_text'])): ?>

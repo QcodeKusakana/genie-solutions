@@ -14,6 +14,7 @@ render_page('home', [
     'steps'        => repo_order_steps(),
     'projects'     => repo_latest_projects(6),
     'testimonials' => repo_approved_testimonials(6),
+    'partners'     => repo_home_partners(),
 ], [
     'canonical_path' => '/',
 ]);

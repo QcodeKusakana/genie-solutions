@@ -8,7 +8,7 @@
     <div class="container">
         <div class="row g-5">
             <div class="col-lg-6">
-<?php $img = media_img($product, (string) $product['name'], 'img-fluid rounded-3', false); ?>
+<?php $img = media_img($product, (string) $product['name'], 'product-feature-image', false); ?>
 <?php if ($img !== ''): ?>
                 <?= $img ?>
 <?php else: ?>

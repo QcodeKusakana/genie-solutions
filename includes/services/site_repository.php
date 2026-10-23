@@ -30,7 +30,9 @@ function repo_published_services(): array
 function repo_home_section(string $key): ?array
 {
     try {
-        $st = db()->prepare('SELECT * FROM home_sections WHERE section_key = :k AND is_active = 1');
+        $st = db()->prepare('SELECT h.*, m.stored_name, m.alt_text, m.width AS media_width, m.height AS media_height
+                               FROM home_sections h LEFT JOIN media m ON m.id = h.media_id
+                              WHERE h.section_key = :k AND h.is_active = 1');
         $st->execute(['k' => $key]);
         $row = $st->fetch();
 
@@ -40,6 +42,17 @@ function repo_home_section(string $key): ?array
 
         return null;
     }
+}
+
+/** Logos partenaires visibles sur la page d’accueil. */
+function repo_home_partners(): array
+{
+    return repo_rows(
+        'SELECT p.id, p.name, p.website_url, p.sort_order, m.stored_name, m.alt_text, m.width, m.height
+           FROM partners p JOIN media m ON m.id = p.media_id
+          WHERE p.is_active = 1
+          ORDER BY p.sort_order, p.name'
+    );
 }
 
 /** Slugs des pages publiées (une seule requête par page) : sert à n'afficher que des liens valides. */

@@ -1,4 +1,5 @@
 .env
+*.bak
 storage/logs/*
 storage/private/*
 storage/backups/*
